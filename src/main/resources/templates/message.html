@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html
+  lang="vi"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <div layout:fragment="content">
+    <!-- Telegram-style Dashboard Layout -->
+    <div class="h-screen flex bg-gray-50 overflow-hidden">
+      <!-- Left Sidebar - Chat List (25%) -->
+      <div class="w-1/4 bg-white border-r border-gray-200 flex flex-col">
+        <!-- Chat Header -->
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-gray-900">Chats</h2>
+            <button
+              id="newChatBtn"
+              class="w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center"
+              title="New Chat"
+            >
+              <i class="fas fa-plus text-sm"></i>
+            </button>
+          </div>
+
+          <!-- Search -->
+          <div class="relative">
+            <input
+              type="text"
+              id="searchChats"
+              placeholder="Search chats..."
+              class="w-full pl-10 pr-4 py-2 bg-gray-100 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm"
+            />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
+        </div>
+
+        <!-- Chat List -->
+        <div class="flex-1 overflow-y-auto">
+          <div id="chatList">
+            <!-- Sample Chat Items -->
+            <div class="chat-item p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 active">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full">
+                  <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900 truncate">Team Alpha</h3>
+                    <span class="text-xs text-gray-500">2:30 PM</span>
+                  </div>
+                  <p class="text-sm text-gray-600 truncate">Alice: Đã hoàn thành task...</p>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-xs text-gray-400">5 members</span>
+                    <span class="bg-blue-500 text-white text-xs rounded-full px-2 py-1">3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-item p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900 truncate">John Doe</h3>
+                    <span class="text-xs text-gray-500">1:15 PM</span>
+                  </div>
+                  <p class="text-sm text-gray-600 truncate">Có thể gặp lúc 3h được không?</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-item p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900 truncate">Project Beta</h3>
+                    <span class="text-xs text-gray-500">11:45 AM</span>
+                  </div>
+                  <p class="text-sm text-gray-600 truncate">Sarah: @Todo Review design...</p>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-xs text-gray-400">3 members</span>
+                    <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1">1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discord-style User Profile Section -->
+        <div class="border-t border-gray-200 bg-gray-100 p-3">
+          <div class="flex items-center space-x-3">
+            <!-- User Avatar -->
+            <div class="relative">
+              <img
+                th:src="${session.user?.avatarUrl} ?: 'https://via.placeholder.com/40'"
+                alt="Your Avatar"
+                class="w-10 h-10 rounded-full border-2 border-green-500"
+              >
+              <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+            </div>
+
+            <!-- User Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                <h4 class="text-sm font-semibold text-gray-900 truncate" th:text="${session.user?.username} ?: 'User'">User</h4>
+                <span class="text-xs text-green-600 font-medium">Online</span>
+              </div>
+              <p class="text-xs text-gray-500 truncate" th:text="${session.user?.email} ?: 'user@example.com'">user@example.com</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-1">
+              <!-- Settings -->
+              <button
+                class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors"
+                title="Settings"
+                onclick="toggleUserMenu()"
+              >
+                <i class="fas fa-cog text-sm"></i>
+              </button>
+
+              <!-- Logout -->
+              <button
+                class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                title="Logout"
+                onclick="logout()"
+              >
+                <i class="fas fa-sign-out-alt text-sm"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- User Menu Dropdown -->
+          <div id="userMenu" class="hidden mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+            <button onclick="openProfileModal()" class="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+              <i class="fas fa-user mr-3 text-gray-400"></i>
+              Thông Tin Cá Nhân
+            </button>
+            <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <i class="fas fa-palette mr-3 text-gray-400"></i>
+              Giao Diện
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <i class="fas fa-bell mr-3 text-gray-400"></i>
+              Thông Báo
+            </a>
+            <hr class="my-1">
+            <a href="/logout" class="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50">
+              <i class="fas fa-sign-out-alt mr-3 text-red-500"></i>
+              Đăng Xuất
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center - Chat Area (50%) -->
+      <div class="flex-1 bg-white flex flex-col">
+        <!-- Chat Header -->
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <img src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full">
+              <div>
+                <h3 class="font-semibold text-gray-900">Team Alpha</h3>
+                <p class="text-sm text-gray-500">5 members • 3 online</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors" title="Search">
+                <i class="fas fa-search"></i>
+              </button>
+              <button class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors" title="Call">
+                <i class="fas fa-phone"></i>
+              </button>
+              <button class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors" title="More">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="messagesContainer">
+          <!-- Sample Messages -->
+          <div class="space-y-4">
+            <!-- Incoming Message -->
+            <div class="flex items-start space-x-3">
+              <img src="https://via.placeholder.com/32" alt="Avatar" class="w-8 h-8 rounded-full">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-1">
+                  <span class="text-sm font-semibold text-gray-900">Alice</span>
+                  <span class="text-xs text-gray-500">2:30 PM</span>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm max-w-md">
+                  <p class="text-gray-800">Chào mọi người! Tôi đã hoàn thành task design cho trang login.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Outgoing Message -->
+            <div class="flex items-start space-x-3 justify-end">
+              <div class="flex-1 flex justify-end">
+                <div class="max-w-md">
+                  <div class="flex items-center space-x-2 mb-1 justify-end">
+                    <span class="text-xs text-gray-500">2:32 PM</span>
+                    <span class="text-sm font-semibold text-gray-900">You</span>
+                  </div>
+                  <div class="bg-blue-500 text-white rounded-lg p-3 shadow-sm">
+                    <p>Tuyệt vời! Có thể share link preview được không?</p>
+                  </div>
+                </div>
+              </div>
+              <img src="https://via.placeholder.com/32" alt="Your Avatar" class="w-8 h-8 rounded-full">
+            </div>
+
+            <!-- Todo Message -->
+            <div class="flex items-start space-x-3">
+              <img src="https://via.placeholder.com/32" alt="Avatar" class="w-8 h-8 rounded-full">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-1">
+                  <span class="text-sm font-semibold text-gray-900">Bob</span>
+                  <span class="text-xs text-gray-500">2:35 PM</span>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm max-w-md">
+                  <p class="text-gray-800">@Todo Review design và feedback trước 5PM</p>
+                  <div class="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                    <div class="flex items-center space-x-2">
+                      <i class="fas fa-tasks text-yellow-600"></i>
+                      <span class="text-sm font-medium text-yellow-800">Task được tạo</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Message -->
+            <div class="flex justify-center">
+              <div class="bg-gray-200 text-gray-600 text-sm px-3 py-1 rounded-full">
+                Alice đã tham gia nhóm
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="p-4 border-t border-gray-200 bg-white">
+          <form id="messageForm" class="flex items-center space-x-3">
+            <button type="button" class="p-2 text-gray-500 hover:text-gray-700 transition-colors" title="Attach">
+              <i class="fas fa-paperclip"></i>
+            </button>
+            <div class="flex-1 relative">
+              <input
+                type="text"
+                id="messageInput"
+                placeholder="Type a message... (Use @Todo for tasks)"
+                class="w-full px-4 py-3 bg-gray-100 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:bg-white"
+              />
+              <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" title="Emoji">
+                <i class="fas fa-smile"></i>
+              </button>
+            </div>
+            <button
+              type="submit"
+              class="w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center"
+            >
+              <i class="fas fa-paper-plane text-sm"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- Right Sidebar - Todo List (25%) -->
+      <div class="w-1/4 bg-white border-l border-gray-200 flex flex-col">
+        <!-- Todo Header -->
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-gray-900">Tasks</h2>
+            <button
+              id="newTaskBtn"
+              class="w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center justify-center"
+              title="New Task"
+            >
+              <i class="fas fa-plus text-sm"></i>
+            </button>
+          </div>
+
+          <!-- Task Filter -->
+          <div class="flex space-x-1 bg-gray-200 rounded-lg p-1">
+            <button class="flex-1 py-2 px-3 text-sm font-medium text-white bg-blue-500 rounded-md transition-colors">
+              All
+            </button>
+            <button class="flex-1 py-2 px-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              Pending
+            </button>
+            <button class="flex-1 py-2 px-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              Done
+            </button>
+          </div>
+        </div>
+
+        <!-- Todo Stats -->
+        <div class="p-4 border-b border-gray-200">
+          <div class="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <div class="text-2xl font-bold text-blue-600">8</div>
+              <div class="text-xs text-gray-500">Pending</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-green-600">12</div>
+              <div class="text-xs text-gray-500">Completed</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Todo List -->
+        <div class="flex-1 overflow-y-auto">
+          <div id="todoList" class="p-4 space-y-3">
+            <!-- Sample Todo Items -->
+            <div class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-medium text-gray-900">Review design cho trang login</h4>
+                  <p class="text-xs text-gray-500 mt-1">From: Team Alpha • Due: 5:00 PM</p>
+                  <div class="flex items-center mt-2 space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      High
+                    </span>
+                    <span class="text-xs text-gray-400">2h left</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-medium text-gray-900">Update API documentation</h4>
+                  <p class="text-xs text-gray-500 mt-1">From: Project Beta • Due: Tomorrow</p>
+                  <div class="flex items-center mt-2 space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Medium
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow opacity-60">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" checked class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-medium text-gray-900 line-through">Setup development environment</h4>
+                  <p class="text-xs text-gray-500 mt-1">From: John Doe • Completed: 1:30 PM</p>
+                  <div class="flex items-center mt-2 space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Completed
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-medium text-gray-900">Prepare presentation slides</h4>
+                  <p class="text-xs text-gray-500 mt-1">Personal • Due: Friday</p>
+                  <div class="flex items-center mt-2 space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Low
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Add Task -->
+        <div class="p-4 border-t border-gray-200 bg-gray-50">
+          <form id="quickTaskForm" class="space-y-2">
+            <input
+              type="text"
+              id="quickTaskInput"
+              placeholder="Quick add task..."
+              class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+            <button
+              type="submit"
+              class="w-full py-2 px-4 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Add Task
+            </button>
+          </form>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- New Chat Modal -->
+    <div
+      id="newChatModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+      >
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            Tạo Chat Mới
+          </h3>
+          <form id="newChatForm">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Loại Chat</label
+              >
+              <select
+                id="chatType"
+                class="w-full border border-gray-300 rounded-md px-3 py-2"
+              >
+                <option value="group">Chat Nhóm</option>
+                <option value="private">Chat Riêng</option>
+              </select>
+            </div>
+
+            <div id="chatNameDiv" class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Tên Chat</label
+              >
+              <input
+                type="text"
+                id="chatName"
+                class="w-full border border-gray-300 rounded-md px-3 py-2"
+                placeholder="Nhập tên chat"
+              />
+            </div>
+
+            <div id="userSearchDiv" class="mb-4 hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Chọn Người Dùng</label
+              >
+              <input
+                type="text"
+                id="userSearch"
+                class="w-full border border-gray-300 rounded-md px-3 py-2"
+                placeholder="Tìm kiếm người dùng..."
+              />
+              <div id="userResults" class="mt-2 max-h-32 overflow-y-auto"></div>
+            </div>
+
+            <div class="flex justify-end space-x-2">
+              <button
+                type="button"
+                id="cancelNewChat"
+                class="px-4 py-2 text-gray-500 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Tạo
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Profile Modal -->
+    <div
+      id="profileModal"
+      class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50"
+    >
+      <div class="relative min-h-screen flex items-center justify-center p-4">
+        <!-- Modal Content with Auth Style -->
+        <div class="relative w-full max-w-2xl digital-gradient rounded-3xl overflow-hidden">
+          <!-- Geometric Background Elements -->
+          <div class="absolute inset-0 pointer-events-none overflow-hidden">
+            <div class="geometric-shape top-10 left-10">
+              <div class="shape-triangle"></div>
+            </div>
+            <div class="geometric-shape top-20 right-16 w-12 h-12 shape-circle"></div>
+            <div class="geometric-shape bottom-16 left-1/4 w-16 h-16 shape-polygon"></div>
+            <div class="mesh-gradient absolute inset-0 opacity-60"></div>
+          </div>
+
+          <!-- Modal Header -->
+          <div class="relative z-10 flex items-center justify-between p-6 border-b border-white/20">
+            <h2 class="text-2xl font-bold text-white">
+              <i class="fas fa-user-cog mr-3 text-blue-400"></i>Thông Tin Cá Nhân
+            </h2>
+            <button
+              onclick="closeProfileModal()"
+              class="w-10 h-10 glass-card text-white rounded-full hover:bg-white/20 transition-colors flex items-center justify-center"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="relative z-10 p-6">
+            <!-- Success/Error Messages -->
+            <div id="profileSuccess" class="hidden mb-6 p-4 glass-card border border-green-400/30 text-green-100 rounded-xl">
+              <div class="flex items-center">
+                <i class="fas fa-check-circle mr-3 text-green-400"></i>
+                <span id="profileSuccessText"></span>
+              </div>
+            </div>
+
+            <div id="profileError" class="hidden mb-6 p-4 glass-card border border-red-400/30 text-red-100 rounded-xl">
+              <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-red-400"></i>
+                <span id="profileErrorText"></span>
+              </div>
+            </div>
+
+            <!-- Avatar Upload Section -->
+            <div class="mb-8">
+              <div class="flex flex-col items-center">
+                <div class="relative mb-6">
+                  <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white/30 shadow-lg">
+                    <img
+                      id="modalAvatarPreview"
+                      th:src="${session.user?.avatarUrl} ?: 'https://via.placeholder.com/128'"
+                      alt="Avatar"
+                      class="w-full h-full object-cover"
+                    >
+                  </div>
+                  <button
+                    type="button"
+                    onclick="document.getElementById('modalAvatarInput').click()"
+                    class="absolute bottom-0 right-0 w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center shadow-lg"
+                    title="Thay đổi ảnh đại diện"
+                  >
+                    <i class="fas fa-camera text-sm"></i>
+                  </button>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-1" th:text="${session.user?.fullName} ?: ${session.user?.username}">Tên người dùng</h3>
+                <p class="text-white/70 mb-1" th:text="'@' + ${session.user?.username}">@username</p>
+                <p class="text-white/60 text-sm" th:text="${session.user?.email}">email@example.com</p>
+              </div>
+            </div>
+
+            <!-- Profile Form -->
+            <form id="profileForm" class="space-y-6">
+              <!-- Hidden Avatar Input -->
+              <input
+                type="file"
+                id="modalAvatarInput"
+                name="avatarFile"
+                accept="image/*"
+                class="hidden"
+                onchange="previewModalAvatar(this)"
+              >
+
+              <!-- Username -->
+              <div>
+                <label for="modalUsername" class="block text-sm font-medium text-white/90 mb-3">
+                  <i class="fas fa-user mr-2 text-blue-400"></i>Tên Đăng Nhập
+                </label>
+                <input
+                  type="text"
+                  id="modalUsername"
+                  th:value="${session.user?.username}"
+                  readonly
+                  class="input-modern w-full px-4 py-3 rounded-xl outline-none bg-white/50 cursor-not-allowed"
+                />
+                <p class="text-xs text-white/60 mt-2">Tên đăng nhập không thể thay đổi</p>
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label for="modalEmail" class="block text-sm font-medium text-white/90 mb-3">
+                  <i class="fas fa-envelope mr-2 text-blue-400"></i>Địa Chỉ Email
+                </label>
+                <input
+                  type="email"
+                  id="modalEmail"
+                  name="email"
+                  th:value="${session.user?.email}"
+                  class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                  required
+                />
+              </div>
+
+              <!-- Full Name -->
+              <div>
+                <label for="modalFullName" class="block text-sm font-medium text-white/90 mb-3">
+                  <i class="fas fa-id-card mr-2 text-blue-400"></i>Họ Và Tên
+                </label>
+                <input
+                  type="text"
+                  id="modalFullName"
+                  name="fullName"
+                  th:value="${session.user?.fullName}"
+                  class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                  placeholder="Nhập họ và tên đầy đủ"
+                />
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <button
+                  type="button"
+                  onclick="closeProfileModal()"
+                  class="flex-1 py-3 px-6 glass-card text-white font-semibold rounded-xl focus:outline-none text-center hover:bg-white/20 transition-colors"
+                >
+                  <i class="fas fa-times mr-2"></i>Hủy
+                </button>
+
+                <button
+                  type="submit"
+                  class="flex-1 btn-modern py-3 px-6 text-white font-semibold rounded-xl focus:outline-none"
+                >
+                  <i class="fas fa-save mr-2"></i>Lưu Thay Đổi
+                </button>
+              </div>
+            </form>
+
+            <!-- Account Information -->
+            <div class="mt-8 pt-6 border-t border-white/20">
+              <h4 class="text-lg font-medium text-white mb-4">
+                <i class="fas fa-info-circle mr-2 text-blue-400"></i>Thông Tin Tài Khoản
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="glass-card p-4 rounded-xl">
+                  <span class="font-medium text-white/90">Thành viên từ:</span>
+                  <div class="text-white/70 mt-1" th:text="${#temporals.format(session.user?.createdAt, 'dd/MM/yyyy')}">01/01/2024</div>
+                </div>
+                <div class="glass-card p-4 rounded-xl">
+                  <span class="font-medium text-white/90">Cập nhật lần cuối:</span>
+                  <div class="text-white/70 mt-1" th:text="${#temporals.format(session.user?.updatedAt, 'dd/MM/yyyy')}">01/01/2024</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+
+  <!-- Profile Modal Fragment -->
+  <div layout:fragment="modal">
+    <div
+      id="profileModal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center"
+    >
+      <!-- Modal Content -->
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 class="text-xl font-bold text-gray-800">
+            <i class="fas fa-user-edit mr-2 text-blue-500"></i>Cập Nhật Thông Tin
+          </h2>
+          <button
+            onclick="closeProfileModal()"
+            class="w-8 h-8 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center"
+          >
+            <i class="fas fa-times text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+          <!-- Success/Error Messages -->
+          <div id="profileSuccess" class="hidden mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+            <div class="flex items-center">
+              <i class="fas fa-check-circle mr-2 text-green-500"></i>
+              <span id="profileSuccessText" class="text-sm"></span>
+            </div>
+          </div>
+
+          <div id="profileError" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            <div class="flex items-center">
+              <i class="fas fa-exclamation-circle mr-2 text-red-500"></i>
+              <span id="profileErrorText" class="text-sm"></span>
+            </div>
+          </div>
+
+          <!-- User Info Display with Avatar Upload -->
+          <div class="mb-6 text-center">
+            <div class="relative w-20 h-20 rounded-full overflow-hidden border-3 border-gray-200 shadow-lg mx-auto mb-3">
+              <img
+                id="modalAvatarPreview"
+                th:src="${session.user?.avatarUrl} ?: 'https://via.placeholder.com/80'"
+                alt="Avatar"
+                class="w-full h-full object-cover"
+              >
+              <!-- Upload Button Overlay -->
+              <button
+                type="button"
+                onclick="document.getElementById('modalAvatarInput').click()"
+                class="absolute inset-0 bg-black bg-opacity-50 text-white opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
+                title="Thay đổi ảnh đại diện"
+              >
+                <i class="fas fa-camera text-lg"></i>
+              </button>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800" th:text="${session.user?.username}">Username</h3>
+            <p class="text-gray-600 text-sm" th:text="${session.user?.email}">email@example.com</p>
+          </div>
+
+          <!-- Profile Form - Full Name + Avatar -->
+          <form id="profileForm" class="space-y-4">
+            <!-- Hidden Email Input -->
+            <input type="hidden" id="modalEmail" name="email" th:value="${session.user?.email}">
+
+            <!-- Hidden Avatar Input -->
+            <input
+              type="file"
+              id="modalAvatarInput"
+              name="avatarFile"
+              accept="image/*"
+              class="hidden"
+              onchange="previewModalAvatar(this)"
+            >
+
+            <!-- Full Name -->
+            <div>
+              <label for="modalFullName" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-id-card mr-2 text-blue-500"></i>Họ Và Tên
+              </label>
+              <input
+                type="text"
+                id="modalFullName"
+                name="fullName"
+                th:value="${session.user?.fullName}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder="Nhập họ và tên đầy đủ"
+                required
+              />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mt-6">
+              <button
+                type="button"
+                onclick="closeProfileModal()"
+                class="flex-1 py-2 px-4 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:outline-none transition-colors"
+              >
+                <i class="fas fa-times mr-1"></i>Hủy
+              </button>
+
+              <button
+                type="submit"
+                class="flex-1 py-2 px-4 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 focus:outline-none transition-colors"
+              >
+                <i class="fas fa-save mr-1"></i>Lưu
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script layout:fragment="script" th:src="@{/js/dashboard.js}"></script>
+
+  <script layout:fragment="script">
+    // Global Functions - Available immediately
+    window.toggleUserMenu = function() {
+      const userMenu = document.getElementById('userMenu');
+      if (userMenu) {
+        userMenu.classList.toggle('hidden');
+      }
+    }
+
+    window.logout = function() {
+      if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+        window.location.href = '/logout';
+      }
+    }
+
+    window.openProfileModal = function() {
+      console.log('Opening profile modal...'); // Debug log
+
+      const modal = document.getElementById('profileModal');
+      const userMenu = document.getElementById('userMenu');
+
+      console.log('Modal element:', modal); // Debug log
+      console.log('UserMenu element:', userMenu); // Debug log
+      console.log('All elements with profileModal:', document.querySelectorAll('#profileModal')); // Debug log
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex'; // Ensure it's visible
+        document.body.style.overflow = 'hidden';
+        console.log('Modal opened successfully'); // Debug log
+      } else {
+        console.error('Profile modal not found!'); // Debug log
+        // List all elements with 'modal' in id
+        const allModals = document.querySelectorAll('[id*="modal"]');
+        console.log('All modal elements:', allModals);
+
+        // Try to create modal dynamically as fallback
+        console.log('Creating modal dynamically...');
+        const dynamicModal = document.createElement('div');
+        dynamicModal.id = 'profileModal';
+        dynamicModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        dynamicModal.innerHTML = `
+          <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 class="text-xl font-bold mb-4">Profile Modal</h2>
+            <p>This modal was created dynamically.</p>
+            <button onclick="closeProfileModal()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Close</button>
+          </div>
+        `;
+        document.body.appendChild(dynamicModal);
+        console.log('Dynamic modal created');
+      }
+
+      if (userMenu) {
+        userMenu.classList.add('hidden');
+      }
+    }
+
+    window.closeProfileModal = function() {
+      const modal = document.getElementById('profileModal');
+
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+
+        // If it's a dynamic modal, remove it
+        if (modal.innerHTML.includes('created dynamically')) {
+          modal.remove();
+        }
+      }
+    }
+
+    window.previewModalAvatar = function(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('modalAvatarPreview');
+          if (preview) {
+            preview.src = e.target.result;
+          }
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    window.showProfileMessage = function(type, message) {
+      const successDiv = document.getElementById('profileSuccess');
+      const errorDiv = document.getElementById('profileError');
+
+      if (successDiv) successDiv.classList.add('hidden');
+      if (errorDiv) errorDiv.classList.add('hidden');
+
+      if (type === 'success' && successDiv) {
+        document.getElementById('profileSuccessText').textContent = message;
+        successDiv.classList.remove('hidden');
+      } else if (errorDiv) {
+        document.getElementById('profileErrorText').textContent = message;
+        errorDiv.classList.remove('hidden');
+      }
+
+      // Auto hide after 3 seconds
+      setTimeout(() => {
+        if (successDiv) successDiv.classList.add('hidden');
+        if (errorDiv) errorDiv.classList.add('hidden');
+      }, 3000);
+    }
+
+    // Status indicator animation
+    function animateStatusIndicator() {
+      const indicators = document.querySelectorAll('.bg-green-500');
+      indicators.forEach(indicator => {
+        indicator.style.animation = 'pulse 2s infinite';
+      });
+    }
+
+    // Event Listeners - Set up after DOM loads
+    document.addEventListener('DOMContentLoaded', function() {
+      animateStatusIndicator();
+
+      // Profile Form Submission
+      const profileForm = document.getElementById('profileForm');
+      if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          const fullNameInput = document.getElementById('modalFullName');
+
+          if (!fullNameInput || !fullNameInput.value.trim()) {
+            showProfileMessage('error', 'Vui lòng nhập họ và tên');
+            return;
+          }
+
+          const formData = new FormData();
+          const emailInput = document.getElementById('modalEmail');
+          const avatarInput = document.getElementById('modalAvatarInput');
+
+
+
+          // Keep current email from session, update fullName and avatar
+          formData.append('email', emailInput ? emailInput.value : '');
+          formData.append('fullName', fullNameInput.value.trim());
+
+          // Add avatar file if selected
+          if (avatarInput && avatarInput.files[0]) {
+            formData.append('avatarFile', avatarInput.files[0]);
+          }
+
+          // Submit form via fetch
+          fetch('/profile', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => {
+            return response.text().then(text => {
+              if (response.ok) {
+                showProfileMessage('success', 'Cập nhật thông tin thành công!');
+                // Reload page after 1.5 seconds to update session data
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+              } else {
+                // Show specific error message from server
+                showProfileMessage('error', text || 'Có lỗi xảy ra khi cập nhật thông tin');
+              }
+            });
+          })
+          .catch(error => {
+            showProfileMessage('error', 'Có lỗi xảy ra: ' + error.message);
+          });
+        });
+      }
+
+      // Close user menu when clicking outside
+      document.addEventListener('click', function(event) {
+        const userMenu = document.getElementById('userMenu');
+        const settingsBtn = event.target.closest('[onclick="toggleUserMenu()"]');
+
+        if (userMenu && !settingsBtn && !userMenu.contains(event.target)) {
+          userMenu.classList.add('hidden');
+        }
+      });
+
+      // Close modal when clicking outside
+      document.addEventListener('click', function(event) {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+          const modalContent = modal.querySelector('.digital-gradient');
+
+          if (event.target === modal && modalContent && !modalContent.contains(event.target)) {
+            closeProfileModal();
+          }
+        }
+      });
+    });
+  </script>
+
+  <style layout:fragment="style">
+    /* CSS Variables for Modal */
+    :root {
+      --primary-purple: #8b5cf6;
+      --primary-blue: #3b82f6;
+      --primary-pink: #ec4899;
+      --primary-orange: #f97316;
+      --dark-bg: #0f0f23;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Digital gradient background for modal */
+    .digital-gradient {
+      background: linear-gradient(
+        135deg,
+        #0f0f23 0%,
+        #1e1b4b 20%,
+        #312e81 40%,
+        #4c1d95 60%,
+        #7c3aed 80%,
+        #a855f7 100%
+      );
+      position: relative;
+    }
+
+    .digital-gradient::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 75% 25%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 25% 75%, rgba(249, 115, 22, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+      animation: gradientShift 8s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Glass effects */
+    .glass-card {
+      backdrop-filter: blur(25px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Modern button */
+    .btn-modern {
+      background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-modern:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(139, 92, 246, 0.6);
+      background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-orange) 100%);
+    }
+
+    /* Modern input */
+    .input-modern {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .input-modern:focus {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--primary-purple);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Geometric shapes for modal */
+    .geometric-shape {
+      position: absolute;
+      animation: geometricFloat 12s ease-in-out infinite;
+    }
+
+    .shape-triangle {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid rgba(139, 92, 246, 0.3);
+      animation: triangleRotate 15s linear infinite;
+    }
+
+    .shape-circle {
+      border-radius: 50%;
+      background: linear-gradient(45deg, rgba(59, 130, 246, 0.3), rgba(236, 72, 153, 0.3));
+      animation: circleFloat 10s ease-in-out infinite;
+    }
+
+    .shape-polygon {
+      background: rgba(249, 115, 22, 0.3);
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+      animation: polygonSpin 20s linear infinite;
+    }
+
+    @keyframes geometricFloat {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      25% { transform: translateY(-20px) translateX(15px); }
+      50% { transform: translateY(-5px) translateX(-10px); }
+      75% { transform: translateY(-15px) translateX(8px); }
+    }
+
+    @keyframes triangleRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes circleFloat {
+      0%, 100% { transform: scale(1) translateY(0px); }
+      50% { transform: scale(1.1) translateY(-15px); }
+    }
+
+    @keyframes polygonSpin {
+      from { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      to { transform: rotate(360deg) scale(1); }
+    }
+
+    .mesh-gradient {
+      background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%);
+      animation: meshMove 10s ease-in-out infinite;
+    }
+
+    @keyframes meshMove {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(5deg); }
+    }
+
+    /* Telegram-style Layout */
+    .chat-item.active {
+      background-color: #f3f4f6;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .chat-item:hover {
+      background-color: #f9fafb;
+    }
+
+    /* Custom scrollbar */
+    .overflow-y-auto::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Message animations */
+    .message-enter {
+      animation: messageSlideIn 0.3s ease-out;
+    }
+
+    @keyframes messageSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Todo item hover effects */
+    .todo-item:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Status indicators */
+    .online-indicator {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background-color: #10b981;
+      border: 2px solid white;
+      border-radius: 50%;
+    }
+
+    /* Chat input focus */
+    #messageInput:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Task priority colors */
+    .priority-high {
+      border-left: 4px solid #ef4444;
+    }
+
+    .priority-medium {
+      border-left: 4px solid #f59e0b;
+    }
+
+    .priority-low {
+      border-left: 4px solid #10b981;
+    }
+
+    /* Discord-style User Profile Section */
+    .user-profile-section {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    }
+
+    .user-profile-section:hover {
+      background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    }
+
+    /* Status indicator pulse animation */
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    /* User menu dropdown animation */
+    #userMenu {
+      animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* User avatar border glow */
+    .user-avatar-glow {
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Hover effects for action buttons */
+    .action-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .sidebar-quarter {
+        width: 30%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+
+      .sidebar-quarter {
+        width: 100%;
+        height: 200px;
+      }
+
+      .chat-main {
+        height: calc(100vh - 400px);
+      }
+    }
+  </style>
+</html>

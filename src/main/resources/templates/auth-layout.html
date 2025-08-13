@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title
+      th:text="${title} ?: 'TodoTalk - Người Bạn Đồng Hành Trong Công Việc'"
+    >
+      TodoTalk
+    </title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#fef7ee",
+                100: "#fdedd3",
+                200: "#fbd7a5",
+                300: "#f8bb6d",
+                400: "#f59532",
+                500: "#f3770a",
+                600: "#e45d05",
+                700: "#bd4508",
+                800: "#96370e",
+                900: "#792f0f",
+              },
+              coffee: {
+                50: "#faf7f0",
+                100: "#f4ede0",
+                200: "#e8d9c0",
+                300: "#dbc19a",
+                400: "#cca572",
+                500: "#c19554",
+                600: "#b48649",
+                700: "#96703e",
+                800: "#7a5c37",
+                900: "#644c2f",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-in-out",
+              "slide-up": "slideUp 0.5s ease-out",
+              float: "float 6s ease-in-out infinite",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(20px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+              float: {
+                "0%, 100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-20px)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root {
+        --primary-purple: #8b5cf6;
+        --primary-blue: #3b82f6;
+        --primary-pink: #ec4899;
+        --primary-orange: #f97316;
+        --dark-bg: #0f0f23;
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .digital-gradient {
+        background: linear-gradient(
+          135deg,
+          #0f0f23 0%,
+          #1e1b4b 20%,
+          #312e81 40%,
+          #4c1d95 60%,
+          #7c3aed 80%,
+          #a855f7 100%
+        );
+        position: relative;
+      }
+
+      .digital-gradient::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 25% 25%,
+            rgba(139, 92, 246, 0.4) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(59, 130, 246, 0.4) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 25%,
+            rgba(236, 72, 153, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 25% 75%,
+            rgba(249, 115, 22, 0.3) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        animation: gradientShift 8s ease-in-out infinite;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+
+      .geometric-shape {
+        position: absolute;
+        animation: geometricFloat 12s ease-in-out infinite;
+      }
+
+      .shape-triangle {
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 35px solid rgba(139, 92, 246, 0.3);
+        animation: triangleRotate 15s linear infinite;
+      }
+
+      .shape-circle {
+        border-radius: 50%;
+        background: linear-gradient(
+          45deg,
+          rgba(59, 130, 246, 0.3),
+          rgba(236, 72, 153, 0.3)
+        );
+        animation: circleFloat 10s ease-in-out infinite;
+      }
+
+      .shape-polygon {
+        background: rgba(249, 115, 22, 0.3);
+        clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        animation: polygonSpin 20s linear infinite;
+      }
+
+      @keyframes geometricFloat {
+        0%,
+        100% {
+          transform: translateY(0px) translateX(0px);
+        }
+        25% {
+          transform: translateY(-30px) translateX(20px);
+        }
+        50% {
+          transform: translateY(-10px) translateX(-15px);
+        }
+        75% {
+          transform: translateY(-25px) translateX(10px);
+        }
+      }
+
+      @keyframes triangleRotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes circleFloat {
+        0%,
+        100% {
+          transform: scale(1) translateY(0px);
+        }
+        50% {
+          transform: scale(1.1) translateY(-20px);
+        }
+      }
+
+      @keyframes polygonSpin {
+        from {
+          transform: rotate(0deg) scale(1);
+        }
+        50% {
+          transform: rotate(180deg) scale(1.2);
+        }
+        to {
+          transform: rotate(360deg) scale(1);
+        }
+      }
+
+      .glass-card {
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+      }
+
+      .feature-card {
+        backdrop-filter: blur(15px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .text-gradient {
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          var(--primary-purple) 50%,
+          var(--primary-pink) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .text-gradient-alt {
+        background: linear-gradient(
+          135deg,
+          var(--primary-blue) 0%,
+          var(--primary-purple) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .btn-modern {
+        background: linear-gradient(
+          135deg,
+          var(--primary-purple) 0%,
+          var(--primary-pink) 100%
+        );
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+      }
+
+      .btn-modern:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(139, 92, 246, 0.6);
+        background: linear-gradient(
+          135deg,
+          var(--primary-pink) 0%,
+          var(--primary-orange) 100%
+        );
+      }
+
+      .input-modern {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .input-modern:focus {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: var(--primary-purple);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+      }
+
+      .mesh-gradient {
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(139, 92, 246, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(59, 130, 246, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 80%,
+            rgba(236, 72, 153, 0.3) 0%,
+            transparent 50%
+          );
+        animation: meshMove 10s ease-in-out infinite;
+      }
+
+      @keyframes meshMove {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        50% {
+          transform: scale(1.1) rotate(5deg);
+        }
+      }
+    </style>
+    <!-- Placeholder for page-specific styles -->
+    <style layout:fragment="style"></style>
+  </head>
+
+  <body class="min-h-screen digital-gradient relative">
+    <!-- Geometric Background Elements -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <!-- Animated Geometric Shapes -->
+      <div class="geometric-shape top-20 left-20">
+        <div class="shape-triangle"></div>
+      </div>
+      <div class="geometric-shape top-40 right-32 w-16 h-16 shape-circle"></div>
+      <div
+        class="geometric-shape bottom-32 left-1/4 w-20 h-20 shape-polygon"
+      ></div>
+      <div class="geometric-shape top-1/3 right-1/4">
+        <div class="shape-triangle" style="animation-delay: 3s"></div>
+      </div>
+      <div
+        class="geometric-shape bottom-20 right-20 w-12 h-12 shape-circle"
+        style="animation-delay: 2s"
+      ></div>
+
+      <!-- Mesh Gradient Overlay -->
+      <div class="absolute inset-0 mesh-gradient opacity-60"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="min-h-screen relative z-10">
+      <!-- Content Grid -->
+      <div class="min-h-screen grid lg:grid-cols-2 gap-0">
+
+        <!-- Left Side - Hero Section -->
+        <div class="flex items-center justify-center p-8 lg:p-16">
+          <div class="max-w-lg text-white space-y-8">
+
+            <!-- Logo & Brand -->
+            <div class="text-center lg:text-left">
+              <div class="inline-flex items-center space-x-4 mb-8">
+                <div class="relative">
+                  <div class="w-16 h-16 glass-card rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-rocket text-2xl text-gradient"></i>
+                  </div>
+                  <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+                </div>
+                <div>
+                  <h1 class="text-4xl font-bold text-gradient">TodoTalk</h1>
+                  <p class="text-white/70 text-sm">Chill Workspace</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hero Text -->
+            <div class="space-y-6 text-center lg:text-left">
+              <h2 class="text-5xl lg:text-6xl font-bold leading-tight">
+                <span class="text-white">Nơi AE</span>
+                <span class="text-gradient-alt block">Làm Việc</span>
+                <span class="text-white">Cùng nhau</span>
+              </h2>
+              <p class="text-xl text-white/80 leading-relaxed">
+                Cùng nhau biến ý tưởng thành hành động, công việc thành kết quả.
+              </p>
+            </div>
+
+            <!-- Feature Highlights -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="feature-card rounded-xl p-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-comments text-white text-sm"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Real-time Chat</h3>
+                    <p class="text-white/60 text-xs">Kết nối tức thời</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="feature-card rounded-xl p-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-tasks text-white text-sm"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Smart Tasks</h3>
+                    <p class="text-white/60 text-xs">Quản lý thông minh</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="feature-card rounded-xl p-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-white text-sm"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Team Sync</h3>
+                    <p class="text-white/60 text-xs">Cộng tác liền mạch</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="feature-card rounded-xl p-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-rocket text-white text-sm"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Innovation</h3>
+                    <p class="text-white/60 text-xs">Đổi mới sáng tạo</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side - Modern Auth Card -->
+        <div class="flex items-center justify-center p-8 lg:p-16">
+          <div class="w-full max-w-md">
+            <!-- Floating Decorative Elements -->
+            <div class="relative">
+              <div class="absolute -top-6 -left-6 w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 animate-pulse"></div>
+              <div class="absolute -bottom-6 -right-6 w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full opacity-30 animate-pulse" style="animation-delay: 1.5s;"></div>
+              <div class="absolute top-1/2 -right-4 w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full opacity-25 animate-pulse" style="animation-delay: 0.5s;"></div>
+
+              <!-- Main Auth Card -->
+              <div class="glass-card rounded-3xl p-8 lg:p-10 relative overflow-hidden">
+                <!-- Subtle Background Pattern -->
+                <div class="absolute inset-0 opacity-5">
+                  <div class="absolute top-6 right-6 w-24 h-24 border border-white rounded-full"></div>
+                  <div class="absolute bottom-6 left-6 w-16 h-16 border border-white rounded-full"></div>
+                  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
+                </div>
+
+                <!-- Content -->
+                <div class="relative z-10" layout:fragment="content">
+                  <!-- Auth content will be inserted here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- Page-specific scripts -->
+    <div layout:fragment="script">
+      <!-- Page-specific JavaScript will be inserted here -->
+    </div>
+  </body>
+</html>

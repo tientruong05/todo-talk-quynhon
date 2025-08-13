@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html
+  lang="vi"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{auth-layout}"
+>
+  <div layout:fragment="content">
+    <!-- Success/Error Messages -->
+    <div
+      th:if="${success}"
+      class="mb-6 p-4 glass-card border border-green-400/30 text-green-100 rounded-xl animate-slide-up"
+    >
+      <div class="flex items-center">
+        <i class="fas fa-check-circle mr-3 text-green-400"></i>
+        <span th:text="${success}"></span>
+      </div>
+    </div>
+
+    <div
+      th:if="${error}"
+      class="mb-6 p-4 glass-card border border-red-400/30 text-red-100 rounded-xl animate-slide-up"
+    >
+      <div class="flex items-center">
+        <i class="fas fa-exclamation-circle mr-3 text-red-400"></i>
+        <span th:text="${error}"></span>
+      </div>
+    </div>
+
+    <!-- Modern Auth Header -->
+    <div class="text-center mb-8">
+      <div
+        class="inline-flex items-center justify-center w-16 h-16 glass-card rounded-2xl mb-4"
+      >
+        <i class="fas fa-rocket text-2xl text-gradient"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-white mb-2">Chào Mừng</h1>
+      <p class="text-white/70">Bắt đầu làm việc thôi nào!</p>
+    </div>
+
+    <!-- Auth Container -->
+    <div class="space-y-6">
+      <!-- Modern Tab Headers -->
+      <div class="flex glass-card rounded-2xl p-1 mb-6">
+        <button
+          id="loginTab"
+          class="flex-1 py-3 px-6 text-center font-semibold transition-all duration-300 tab-button active rounded-xl"
+          onclick="switchTab('login')"
+        >
+          <i class="fas fa-sign-in-alt mr-2"></i>
+          Đăng Nhập
+        </button>
+        <button
+          id="registerTab"
+          class="flex-1 py-3 px-6 text-center font-semibold transition-all duration-300 tab-button rounded-xl"
+          onclick="switchTab('register')"
+        >
+          <i class="fas fa-user-plus mr-2"></i>
+          Đăng Ký
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+        <!-- Login Form -->
+        <div id="loginForm" class="tab-content active">
+          <form
+            th:action="@{/login}"
+            method="POST"
+            th:object="${loginRequest}"
+            class="space-y-6"
+          >
+            <div>
+              <label
+                for="loginEmail"
+                class="block text-sm font-medium text-white/90 mb-3"
+              >
+                <i class="fas fa-envelope mr-2 text-purple-400"></i>Địa Chỉ Email
+              </label>
+              <input
+                id="loginEmail"
+                th:field="*{usernameOrEmail}"
+                type="email"
+                required
+                class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                placeholder="Nhập địa chỉ email của bạn"
+              />
+            </div>
+
+            <div>
+              <label
+                for="loginPassword"
+                class="block text-sm font-medium text-white/90 mb-3"
+              >
+                <i class="fas fa-lock mr-2 text-purple-400"></i>Mật Khẩu
+              </label>
+              <input
+                id="loginPassword"
+                th:field="*{password}"
+                type="password"
+                required
+                class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                placeholder="Nhập mật khẩu của bạn"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-modern w-full py-4 px-6 text-white font-semibold rounded-xl focus:outline-none"
+            >
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Đăng Nhập
+            </button>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="tab-content">
+          <form
+            th:action="@{/register}"
+            method="POST"
+            th:object="${registerRequest}"
+            class="space-y-5"
+          >
+            <div>
+              <label
+                for="registerUsername"
+                class="block text-sm font-medium text-white/90 mb-3"
+              >
+                <i class="fas fa-user mr-2 text-blue-400"></i>Tên Đăng Nhập
+              </label>
+              <input
+                id="registerUsername"
+                th:field="*{username}"
+                type="text"
+                required
+                class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                placeholder="Chọn tên đăng nhập duy nhất"
+              />
+            </div>
+
+            <div>
+              <label
+                for="registerEmail"
+                class="block text-sm font-medium text-white/90 mb-3"
+              >
+                <i class="fas fa-envelope mr-2 text-blue-400"></i>Địa Chỉ Email
+              </label>
+              <input
+                id="registerEmail"
+                th:field="*{email}"
+                type="email"
+                required
+                class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                placeholder="Nhập địa chỉ email của bạn"
+              />
+            </div>
+
+            <div>
+              <label
+                for="registerFullName"
+                class="block text-sm font-medium text-white/90 mb-3"
+              >
+                <i class="fas fa-id-card mr-2 text-blue-400"></i>Họ Và Tên
+              </label>
+              <input
+                id="registerFullName"
+                th:field="*{fullName}"
+                type="text"
+                required
+                class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                placeholder="Nhập họ và tên của bạn"
+              />
+            </div>
+
+            <div>
+              <label
+                for="registerPassword"
+                class="block text-sm font-medium text-white/90 mb-3"
+              >
+                <i class="fas fa-lock mr-2 text-blue-400"></i>Mật Khẩu
+              </label>
+              <input
+                id="registerPassword"
+                th:field="*{password}"
+                type="password"
+                required
+                class="input-modern w-full px-4 py-3 rounded-xl outline-none"
+                placeholder="Tạo mật khẩu an toàn"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-modern w-full py-4 px-6 text-white font-semibold rounded-xl focus:outline-none"
+            >
+              <i class="fas fa-user-plus mr-2"></i>
+              Tạo Tài Khoản
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Logo (visible on small screens) -->
+    <div class="lg:hidden text-center mt-8">
+      <div class="flex items-center justify-center mb-4">
+        <div class="w-12 h-12 glass-card rounded-xl flex items-center justify-center mr-3">
+          <i class="fas fa-rocket text-white text-lg"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white">TodoTalk</h1>
+      </div>
+      <p class="text-white/70">Digital Workspace của tương lai</p>
+    </div>
+  </div>
+
+  <script layout:fragment="script">
+    function switchTab(tab) {
+      // Remove active class from all tabs and content
+      document.querySelectorAll(".tab-button").forEach((btn) => {
+        btn.classList.remove("active");
+      });
+      document.querySelectorAll(".tab-content").forEach((content) => {
+        content.classList.remove("active");
+      });
+
+      // Add active class to selected tab and content
+      document.getElementById(tab + "Tab").classList.add("active");
+      document.getElementById(tab + "Form").classList.add("active");
+    }
+
+    // Check URL parameters to determine which tab to show
+    document.addEventListener("DOMContentLoaded", function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get("tab");
+
+      if (tab === "register") {
+        switchTab("register");
+      } else {
+        switchTab("login");
+      }
+    });
+  </script>
+
+  <style layout:fragment="style">
+    .tab-button {
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-button.active {
+      color: white;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .tab-button:hover:not(.active) {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-content {
+      display: none;
+      animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Custom scrollbar for inputs */
+    .input-modern::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .input-modern::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    .input-modern::-webkit-scrollbar-thumb {
+      background: var(--primary-purple);
+      border-radius: 2px;
+    }
+
+    /* Placeholder styling */
+    .input-modern::placeholder {
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Focus ring for accessibility */
+    .btn-modern:focus-visible {
+      outline: 2px solid var(--primary-purple);
+      outline-offset: 2px;
+    }
+
+    .input-modern:focus-visible {
+      outline: 2px solid var(--primary-purple);
+      outline-offset: 2px;
+    }
+  </style>
+</html>

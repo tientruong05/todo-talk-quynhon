@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title} ?: 'TodoTalk - Cafe & Work Together'">
+      TodoTalk
+    </title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              coffee: {
+                50: "#fdf8f6",
+                100: "#f2e8e5",
+                200: "#eaddd7",
+                300: "#e0cec7",
+                400: "#d2bab0",
+                500: "#bfa094",
+                600: "#a18072",
+                700: "#977669",
+                800: "#846358",
+                900: "#43302b",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+  </head>
+  <body class="bg-gray-50 font-sans h-screen overflow-hidden">
+    <!-- Full Screen Content -->
+    <div layout:fragment="content">
+      <!-- Content will be inserted here -->
+    </div>
+
+    <!-- Modals -->
+    <div layout:fragment="modal">
+      <!-- Modals will be inserted here -->
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/notifications.js}"></script>
+
+    <!-- Page-specific scripts -->
+    <div layout:fragment="script">
+      <!-- Page-specific JavaScript will be inserted here -->
+    </div>
+  </body>
+</html>
