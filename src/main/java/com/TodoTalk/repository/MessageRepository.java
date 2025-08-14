@@ -9,32 +9,37 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    // Lấy tin nhắn trong chat với pagination
-    Page<Message> findByChatIdOrderByCreatedAtDesc(Long chatId, Pageable pageable);
+    // Lấy tin nhắn trong chat với pagination (sử dụng sentAt thay vì createdAt)
+    Page<Message> findByChatIdOrderBySentAtDesc(Long chatId, Pageable pageable);
 
     // Lấy tin nhắn mới nhất của chat
-    List<Message> findTop50ByChatIdOrderByCreatedAtDesc(Long chatId);
+    List<Message> findTop50ByChatIdOrderBySentAtDesc(Long chatId);
 
     // Tìm tin nhắn có @Todo trigger
     List<Message> findByChatIdAndIsTodoTriggerTrue(Long chatId);
 
     // Tìm tin nhắn của user trong chat
-    List<Message> findByChatIdAndSenderIdOrderByCreatedAtDesc(Long chatId, Long senderId);
+    List<Message> findByChatIdAndSenderIdOrderBySentAtDesc(Long chatId, Long senderId);
 
-    // Đếm tin nhắn chưa đọc
+    // Đếm tin nhắn chưa đọc (sử dụng isRead field)
     @Query("SELECT COUNT(m) FROM Message m " +
            "WHERE m.chat.id = :chatId " +
-           "AND m.id NOT IN " +
-           "(SELECT mr.message.id FROM MessageRead mr WHERE mr.user.id = :userId)")
-    Long countUnreadMessages(@Param("chatId") Long chatId, @Param("userId") Long userId);
+           "AND m.sender.id != :userId " +
+           "AND m.isRead = false")
+    Long countUnreadMessagesByChatAndUser(@Param("chatId") Long chatId, @Param("userId") Long userId);
 
-    // Lấy tin nhắn cuối cùng trong chat
+    // Lấy tin nhắn chưa đọc
     @Query("SELECT m FROM Message m " +
            "WHERE m.chat.id = :chatId " +
-           "ORDER BY m.createdAt DESC LIMIT 1")
-    Message findLastMessage(@Param("chatId") Long chatId);
+           "AND m.sender.id != :userId " +
+           "AND m.isRead = false")
+    List<Message> findUnreadMessagesByChatAndUser(@Param("chatId") Long chatId, @Param("userId") Long userId);
+
+    // Lấy tin nhắn cuối cùng trong chat
+    Optional<Message> findFirstByChatIdOrderBySentAtDesc(Long chatId);
 }

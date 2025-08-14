@@ -82,6 +82,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(this::convertToUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<UserResponse> getUsersNotInChat(Long chatId) {
         List<User> users = userRepository.findUsersNotInChat(chatId);
         return users.stream()

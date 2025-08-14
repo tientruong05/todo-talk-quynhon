@@ -48,9 +48,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        // API endpoints - use JWT
-                        .requestMatchers("/api/**").authenticated()
+                        // API endpoints - use JWT or session
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/**", "/api/chats/**", "/api/messages/**").permitAll() // Will be handled by controller session check
+                        .requestMatchers("/api/**").authenticated()
+                        // WebSocket endpoints
+                        .requestMatchers("/ws/**").permitAll()
                         // Web endpoints - use session
                         .requestMatchers("/login", "/register", "/", "/logout").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()

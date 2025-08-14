@@ -28,21 +28,33 @@ public class Message {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id")
     private User sender;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Builder.Default
+    @Column(name = "message_type", length = 20)
+    private String messageType = "TEXT"; // TEXT, IMAGE, FILE, etc.
+
+    @Builder.Default
+    @Column(name = "is_read")
+    private Boolean isRead = false;
+
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
+
+    @Builder.Default
     @Column(name = "is_todo_trigger")
-    private Boolean isTodoTrigger;
+    private Boolean isTodoTrigger = false;
 
     @Column(name = "edited_at")
     private LocalDateTime editedAt;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "sent_at")
+    private LocalDateTime sentAt;
 
     @Builder.Default
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -50,4 +62,9 @@ public class Message {
 
     @OneToOne(mappedBy = "message", fetch = FetchType.LAZY)
     private Task task; // optional
+
+    @PrePersist
+    protected void onCreate() {
+        sentAt = LocalDateTime.now();
+    }
 }

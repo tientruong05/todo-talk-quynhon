@@ -28,4 +28,9 @@ public class ChatParticipant {
 
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        joinedAt = LocalDateTime.now();
+    }
 }

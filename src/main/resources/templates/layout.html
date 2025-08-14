@@ -52,6 +52,10 @@
       <!-- Modals will be inserted here -->
     </div>
 
+    <!-- WebSocket Libraries (loaded first) -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+
     <!-- Scripts -->
     <script th:src="@{/js/main.js}"></script>
     <script th:src="@{/js/notifications.js}"></script>

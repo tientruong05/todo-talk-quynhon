@@ -12,9 +12,13 @@ import java.time.LocalDateTime;
 public class MessageResponse {
     private Long messageId;
     private Long chatId;
-    private UserResponse sender;
+    private Long senderId;
+    private String senderUsername;
+    private String senderFullName;
+    private String senderAvatarUrl;
     private String content;
-    private Boolean isTodoTrigger;
-    private LocalDateTime editedAt;
-    private LocalDateTime createdAt;
+    private String messageType;
+    private LocalDateTime sentAt;
+    private Boolean isRead;
+    private LocalDateTime readAt;
 }
