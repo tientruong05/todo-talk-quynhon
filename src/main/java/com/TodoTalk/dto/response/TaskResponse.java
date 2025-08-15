@@ -18,8 +18,8 @@ public class TaskResponse {
     private String description;
     private TaskStatus status;
     private LocalDateTime dueDate;
-    private String proofPath;
-    private LocalDateTime proofUploadedAt;
+    private String completionNote;
+    private LocalDateTime noteAddedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime completedAt;

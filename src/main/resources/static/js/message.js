@@ -6,6 +6,9 @@ let pendingPrivateChat = null; // holds info before first message is sent
 let stompClient = null;
 let isConnected = false;
 let chatCache = {}; // store chats by id
+let allTasksCache = []; // cache tasks for current chat
+let currentTaskFilter = "ALL";
+let pendingCompleteTaskId = null;
 
 function initializeMessagePage() {
   console.log("initializeMessagePage called (safe init)");
@@ -15,6 +18,11 @@ function initializeMessagePage() {
     initializeEventListeners();
     initializeWebSocket();
     loadChatList();
+
+    // If a chat is pre-selected (e.g., from cached state), load its tasks
+    if (window.currentChatId) {
+      loadTasksForCurrentChat();
+    }
   });
 }
 
@@ -100,6 +108,67 @@ function initializeEventListeners() {
 
   const messageForm = document.getElementById("messageForm");
   if (messageForm) messageForm.addEventListener("submit", handleSendMessage);
+
+  // Task filter buttons
+  const filterAllBtn = document.getElementById("filterAllBtn");
+  const filterPendingBtn = document.getElementById("filterPendingBtn");
+  const filterDoneBtn = document.getElementById("filterDoneBtn");
+  if (filterAllBtn)
+    filterAllBtn.addEventListener("click", () => setTaskFilter("ALL"));
+  if (filterPendingBtn)
+    filterPendingBtn.addEventListener("click", () => setTaskFilter("PENDING"));
+  if (filterDoneBtn)
+    filterDoneBtn.addEventListener("click", () => setTaskFilter("DONE"));
+
+  // Completion modal buttons (attach immediately; script loaded after DOM)
+  attachCompleteTaskModalListeners();
+}
+
+function setTaskFilter(filter) {
+  currentTaskFilter = filter;
+  updateFilterButtonStyles();
+  renderFilteredTasks();
+}
+
+function updateFilterButtonStyles() {
+  const map = {
+    ALL: document.getElementById("filterAllBtn"),
+    PENDING: document.getElementById("filterPendingBtn"),
+    DONE: document.getElementById("filterDoneBtn"),
+  };
+  Object.entries(map).forEach(([key, btn]) => {
+    if (!btn) return;
+    if (key === currentTaskFilter) {
+      btn.classList.remove(
+        "text-gray-600",
+        "hover:text-gray-900",
+        "bg-transparent"
+      );
+      btn.classList.add("text-white", "bg-blue-500");
+    } else {
+      btn.classList.remove("text-white", "bg-blue-500");
+      btn.classList.add(
+        "text-gray-600",
+        "hover:text-gray-900",
+        "bg-transparent"
+      );
+    }
+  });
+}
+
+function renderFilteredTasks() {
+  let tasksToShow = allTasksCache;
+  if (currentTaskFilter === "PENDING") {
+    tasksToShow = allTasksCache.filter(
+      (t) => t.status === "pending" || t.status === "PENDING"
+    );
+  } else if (currentTaskFilter === "DONE") {
+    tasksToShow = allTasksCache.filter(
+      (t) => t.status === "completed" || t.status === "COMPLETED"
+    );
+  }
+  displayTasks(tasksToShow);
+  updateTaskStats();
 }
 
 function initializeWebSocket() {
@@ -143,6 +212,12 @@ function subscribeToChat(chatId) {
       "/topic/chat/" + chatId + "/read",
       function (message) {
         handleMessageRead(JSON.parse(message.body));
+      }
+    );
+    stompClient.subscribe(
+      "/topic/chat/" + chatId + "/tasks",
+      function (message) {
+        handleNewTask(JSON.parse(message.body));
       }
     );
   }
@@ -699,20 +774,17 @@ function openChat(chatId) {
   currentChatId = chatId;
   window.currentChatId = chatId; // Make it globally available
 
-  // Subscribe to chat if WebSocket is connected
   if (stompClient && isConnected) {
     subscribeToChat(chatId);
   }
 
-  // Show chat header and message input
   document.getElementById("chatHeader").classList.remove("hidden");
   document.getElementById("messageInputContainer").classList.remove("hidden");
 
-  // Load chat details and messages
   loadChatDetails(chatId);
   loadMessages(chatId);
-
-  // Mark as read
+  // Load tasks AFTER messages to avoid race conditions
+  loadTasksForCurrentChat();
   markAsReadViaWebSocket(chatId);
 }
 
@@ -738,17 +810,6 @@ function loadChatDetails(chatId) {
                     : "Đang hoạt động"
                 }</p>
             </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <button class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
-                <i class="fas fa-phone"></i>
-            </button>
-            <button class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
-                <i class="fas fa-video"></i>
-            </button>
-            <button class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
-                <i class="fas fa-info-circle"></i>
-            </button>
         </div>
     `;
 }
@@ -1117,8 +1178,338 @@ window.openProfileModal = openProfileModal;
 window.closeProfileModal = closeProfileModal;
 window.setupProfileForm = setupProfileForm;
 window.addMemberToGroup = addMemberToGroup;
-window.removeMemberFromGroup = removeMemberFromGroup;
-window.startChatWithUser = startChatWithUser; // ensure overridden version exposed
-window.openChat = openChat;
-window.previewModalAvatar = previewModalAvatar;
-window.displayMessages = displayMessages; // expose for testing
+
+// Task Management Functions
+function handleNewTask(task) {
+  console.log("New task received:", task);
+  addTaskToUI(task);
+  updateTaskStats();
+
+  // Show notification if it's not the current user's task
+  if (task.user.userId !== window.currentUserId) {
+    showTaskNotification(task);
+  }
+
+  // Add to cache & re-render respecting filter
+  allTasksCache.unshift(task);
+  renderFilteredTasks();
+}
+
+function addTaskToUI(task) {
+  const todoList = document.getElementById("todoList");
+  if (!todoList) return;
+
+  // Hide empty message when adding first task
+  const emptyMessage = document.getElementById("todoListEmpty");
+  if (emptyMessage) {
+    emptyMessage.style.display = "none";
+  }
+
+  const taskElement = createTaskElement(task);
+  todoList.insertBefore(taskElement, todoList.firstChild);
+}
+
+function createTaskElement(task) {
+  const taskDiv = document.createElement("div");
+  taskDiv.className =
+    "todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow";
+  taskDiv.dataset.taskId = task.taskId;
+
+  const statusVal = (task.status || "").toString();
+  const isCompleted = statusVal === "completed" || statusVal === "COMPLETED";
+  const dueDateText = formatDueDate(task.dueDate);
+
+  taskDiv.innerHTML = `
+    <div class="flex items-start space-x-3">
+      <input
+        type="checkbox"
+        class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500 task-checkbox"
+        ${isCompleted ? "checked" : ""}
+        onchange="onTaskCheckboxChange(${task.taskId}, this)"
+        ${isCompleted ? "disabled" : ""}
+      />
+      <div class="flex-1 min-w-0">
+        <h4 class="text-sm font-medium text-gray-900 ${
+          isCompleted ? "line-through" : ""
+        }">
+          ${task.description}
+        </h4>
+        <p class="text-xs text-gray-500 mt-1">
+          Từ: ${task.user.username} ${
+    dueDateText ? "• Hạn: " + dueDateText : ""
+  }
+        </p>
+        <div class="flex items-center mt-2 space-x-2">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+            isCompleted
+              ? "bg-green-100 text-green-800"
+              : "bg-blue-100 text-blue-800"
+          }">
+            ${isCompleted ? "Đã Hoàn Thành" : "Đang Chờ"}
+          </span>
+          ${
+            task.completionNote
+              ? `<button onclick="showTaskNote(${task.taskId})" class="text-xs text-blue-600 hover:text-blue-800" title="Xem ghi chú hoàn thành"><i class="fas fa-sticky-note"></i></button>`
+              : ""
+          }
+        </div>
+      </div>
+    </div>
+  `;
+
+  return taskDiv;
+}
+
+function formatDueDate(dueDate) {
+  if (!dueDate) return "";
+
+  const date = new Date(dueDate);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const taskDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  if (taskDate.getTime() === today.getTime()) {
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } else if (taskDate < today) {
+    return "Quá hạn";
+  } else {
+    return date.toLocaleDateString("vi-VN");
+  }
+}
+
+function capitalizeFirst(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function toggleTaskStatus(taskId, isCompleted) {
+  const status = isCompleted ? "completed" : "pending";
+  fetch(`/api/tasks/${taskId}/status`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `status=${status}`,
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to update task status");
+      return response.json();
+    })
+    .then((updatedTask) => {
+      updateTaskInCache(updatedTask);
+      renderFilteredTasks(); // re-render whole list to respect current filter & stats
+    })
+    .catch((error) => {
+      console.error("Error updating task status:", error);
+      // Revert checkbox visual state
+      const checkbox = document.querySelector(
+        `[data-task-id="${taskId}"] .task-checkbox`
+      );
+      if (checkbox) checkbox.checked = !isCompleted;
+    });
+}
+
+function updateTaskInCache(updatedTask) {
+  if (!allTasksCache || !updatedTask) return;
+  const idx = allTasksCache.findIndex((t) => t.taskId === updatedTask.taskId);
+  if (idx !== -1) {
+    allTasksCache[idx] = updatedTask; // replace
+  }
+}
+
+function updateTaskStats() {
+  // Use full cache (independent of current filter)
+  const totalTasks = allTasksCache.length;
+  const completed = allTasksCache.filter(
+    (t) => t.status === "completed" || t.status === "COMPLETED"
+  ).length;
+  const pending = totalTasks - completed;
+  const pendingCount = document.getElementById("pendingCount");
+  const completedCount = document.getElementById("completedCount");
+  if (pendingCount) pendingCount.textContent = pending;
+  if (completedCount) completedCount.textContent = completed;
+}
+
+function showTaskNotification(task) {
+  if (
+    window.notificationManager &&
+    window.notificationManager.isPermissionGranted()
+  ) {
+    window.notificationManager.showNotification("Công việc mới", {
+      body: `${task.user.username} đã tạo: ${task.description}`,
+      icon: "/favicon.ico",
+      tag: "new-task",
+    });
+  }
+}
+
+function showTaskNote(taskId) {
+  fetch(`/api/tasks/${taskId}`)
+    .then((response) => response.json())
+    .then((task) => {
+      if (task.completionNote) {
+        alert(`Ghi chú hoàn thành:\n\n${task.completionNote}`);
+      }
+    })
+    .catch((error) => console.error("Error fetching task note:", error));
+}
+
+function loadTasksForCurrentChat() {
+  if (!currentChatId) return;
+  fetch(`/api/tasks/chat/${currentChatId}`)
+    .then((r) => r.json())
+    .then((tasks) => {
+      allTasksCache = tasks || [];
+      renderFilteredTasks();
+    })
+    .catch((err) => console.error("Error loading tasks:", err));
+}
+
+function displayTasks(tasks) {
+  const todoList = document.getElementById("todoList");
+  if (!todoList) return;
+
+  // Clear existing tasks
+  todoList.innerHTML = "";
+
+  if (!tasks || tasks.length === 0) {
+    // Show empty message if no tasks
+    todoList.innerHTML = `
+      <div class="text-center text-gray-500 py-8" id="todoListEmpty">
+        <i class="fas fa-tasks text-3xl text-gray-300 mb-3"></i>
+        <p class="text-sm">Chưa có task nào</p>
+        <p class="text-xs text-gray-400 mt-1">Gửi tin nhắn với @Todo để tạo task mới</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Display tasks
+  tasks.forEach((task) => {
+    const taskElement = createTaskElement(task);
+    todoList.appendChild(taskElement);
+  });
+}
+
+// Load tasks when chat is opened
+function loadTasks() {
+  loadTasksForCurrentChat();
+}
+
+function onTaskCheckboxChange(taskId, checkboxEl) {
+  const task = allTasksCache.find((t) => t.taskId === taskId);
+  if (!task) return;
+  const wasCompleted =
+    (task.status || "").toString().toLowerCase() === "completed";
+  if (wasCompleted) {
+    // Should never allow unchecking (checkbox disabled, but safeguard)
+    checkboxEl.checked = true;
+    return;
+  }
+  if (checkboxEl.checked) {
+    // Open modal to confirm completion
+    pendingCompleteTaskId = taskId;
+    openCompleteTaskModal();
+  } else {
+    // If user tried to uncheck while not completed yet, just keep pending state
+    checkboxEl.checked = false;
+  }
+}
+
+function openCompleteTaskModal() {
+  const modal = document.getElementById("completeTaskModal");
+  const noteInput = document.getElementById("completionNoteInput");
+  const error = document.getElementById("completionNoteError");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    if (noteInput) {
+      noteInput.value = "";
+      noteInput.focus();
+    }
+    if (error) error.classList.add("hidden");
+  }
+}
+function closeCompleteTaskModal() {
+  const modal = document.getElementById("completeTaskModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+  pendingCompleteTaskId = null;
+}
+
+function confirmCompleteTask() {
+  const noteInput = document.getElementById("completionNoteInput");
+  const error = document.getElementById("completionNoteError");
+  if (!noteInput) return;
+  const note = noteInput.value.trim();
+  if (!note) {
+    if (error) error.classList.remove("hidden");
+    return;
+  }
+  const taskId = pendingCompleteTaskId;
+  if (!taskId) return;
+  // First set status to completed
+  fetch(`/api/tasks/${taskId}/status`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "status=completed",
+  })
+    .then((r) => {
+      if (!r.ok) throw new Error("Status update failed");
+      return r.json();
+    })
+    .then((updatedTask) => {
+      // Then add completion note
+      return fetch(`/api/tasks/${taskId}/note`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `note=${encodeURIComponent(note)}`,
+      })
+        .then((r2) => {
+          if (!r2.ok) throw new Error("Note update failed");
+          return r2.json();
+        })
+        .then((taskWithNote) => {
+          updateTaskInCache(taskWithNote);
+          renderFilteredTasks();
+          closeCompleteTaskModal();
+        });
+    })
+    .catch((err) => {
+      console.error("Complete task error", err);
+      // Revert checkbox if failed
+      const cb = document.querySelector(
+        `[data-task-id="${taskId}"] .task-checkbox`
+      );
+      if (cb) cb.checked = false;
+      closeCompleteTaskModal();
+      alert("Không thể hoàn thành task. Vui lòng thử lại.");
+    });
+}
+
+function attachCompleteTaskModalListeners() {
+  if (document.getElementById("completeTaskModal").getAttribute("data-init")) {
+    return; // already attached
+  }
+  const cancelBtn = document.getElementById("cancelCompleteTaskBtn");
+  const confirmBtn = document.getElementById("confirmCompleteTaskBtn");
+  if (cancelBtn)
+    cancelBtn.addEventListener("click", () => {
+      if (pendingCompleteTaskId) {
+        const cb = document.querySelector(
+          `[data-task-id="${pendingCompleteTaskId}"] .task-checkbox`
+        );
+        if (cb) cb.checked = false;
+      }
+      closeCompleteTaskModal();
+    });
+  if (confirmBtn) confirmBtn.addEventListener("click", confirmCompleteTask);
+  const modal = document.getElementById("completeTaskModal");
+  if (modal) modal.setAttribute("data-init", "true");
+}

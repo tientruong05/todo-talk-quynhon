@@ -77,7 +77,7 @@ CREATE TABLE Notifications (
     INDEX idx_type (type)
 ) ENGINE=InnoDB;
 
--- Bảng Tasks: Lưu task todo được tạo từ tin nhắn @Todo, gộp proof
+-- Bảng Tasks: Lưu task todo được tạo từ tin nhắn @Todo, với ghi chú kết quả dạng text
 CREATE TABLE Tasks (
     task_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     message_id BIGINT,
@@ -86,8 +86,8 @@ CREATE TABLE Tasks (
     description TEXT NOT NULL,
     status ENUM('pending', 'completed') DEFAULT 'pending',
     due_date DATETIME,
-    proof_path VARCHAR(255), -- Đường dẫn file ảnh bằng chứng từ backend
-    proof_uploaded_at TIMESTAMP,
+    completion_note TEXT, -- Ghi chú kết quả hoàn thành task
+    note_added_at TIMESTAMP, -- Thời gian thêm ghi chú
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     completed_at TIMESTAMP,

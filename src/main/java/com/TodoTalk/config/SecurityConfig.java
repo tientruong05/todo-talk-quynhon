@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // API endpoints - use JWT or session
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**", "/api/chats/**", "/api/messages/**").permitAll() // Will be handled by controller session check
+                        .requestMatchers("/api/users/**", "/api/chats/**", "/api/messages/**", "/api/tasks/**").permitAll() // added /api/tasks/** to allow task fetching
                         .requestMatchers("/api/**").authenticated()
                         // WebSocket endpoints
                         .requestMatchers("/ws/**").permitAll()

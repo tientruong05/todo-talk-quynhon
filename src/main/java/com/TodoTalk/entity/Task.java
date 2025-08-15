@@ -45,11 +45,11 @@ public class Task {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
-    @Column(name = "proof_path", length = 255)
-    private String proofPath;
+    @Column(name = "completion_note", columnDefinition = "TEXT")
+    private String completionNote;
 
-    @Column(name = "proof_uploaded_at")
-    private LocalDateTime proofUploadedAt;
+    @Column(name = "note_added_at")
+    private LocalDateTime noteAddedAt;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -5,6 +5,7 @@ import com.TodoTalk.dto.response.UserResponse;
 import com.TodoTalk.service.MessageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
@@ -99,6 +101,9 @@ public class MessageController {
     // WebSocket message handling
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload Map<String, Object> messageData, SimpMessageHeaderAccessor headerAccessor) {
+        log.info("=== MESSAGE CONTROLLER: Received WebSocket message ===");
+        log.info("Message data: {}", messageData);
+        
         try {
             Map<String, Object> sessionAttrs = headerAccessor.getSessionAttributes();
             UserResponse user = null;
@@ -107,17 +112,24 @@ public class MessageController {
                 if (u instanceof UserResponse) user = (UserResponse) u;
             }
             if (user == null) {
-                System.err.println("WebSocket sendMessage: user not in session attributes - ignoring message");
+                log.error("WebSocket sendMessage: user not in session attributes - ignoring message");
                 return;
             }
+            
             Long chatId = Long.valueOf(messageData.get("chatId").toString());
             String content = messageData.get("content").toString();
             String messageType = messageData.getOrDefault("messageType", "TEXT").toString();
+            
+            log.info("Processing message - Chat ID: {}, User: {} ({}), Content: '{}', Type: {}", 
+                     chatId, user.getUsername(), user.getUserId(), content, messageType);
 
             MessageResponse message = messageService.sendMessage(chatId, user.getUserId(), content, messageType);
+            
+            log.info("Message processed, broadcasting to WebSocket topic: /topic/chat/{}", chatId);
             messagingTemplate.convertAndSend("/topic/chat/" + chatId, message);
         } catch (Exception e) {
-            System.err.println("Error sending message (WS): " + e.getMessage());
+            log.error("=== ERROR IN MESSAGE CONTROLLER ===");
+            log.error("Error sending message (WebSocket): {}", e.getMessage(), e);
         }
     }
 

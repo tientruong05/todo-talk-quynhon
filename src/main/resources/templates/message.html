@@ -13,12 +13,12 @@
         <!-- Chat Header -->
         <div class="p-4 border-b border-gray-200 bg-gray-50">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-gray-900">Chats</h2>
+            <h2 class="text-xl font-bold text-gray-900">Cuộc Trò Chuyện</h2>
             <div class="flex items-center space-x-2">
               <button
                 id="testUIBtn"
                 class="w-10 h-10 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-colors flex items-center justify-center"
-                title="Test UI with Mock Messages"
+                title="Kiểm thử giao diện"
                 onclick="testMessageUI()"
               >
                 <i class="fas fa-flask text-sm"></i>
@@ -26,7 +26,7 @@
               <button
                 id="searchUsersBtn"
                 class="w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center justify-center"
-                title="Search Users"
+                title="Tìm người dùng"
                 onclick="console.log('Search button clicked directly'); if(window.openSearchUsersModal) window.openSearchUsersModal(); else console.error('openSearchUsersModal not found');"
               >
                 <i class="fas fa-user-plus text-sm"></i>
@@ -34,7 +34,7 @@
               <button
                 id="newGroupBtn"
                 class="w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center"
-                title="Create Group"
+                title="Tạo nhóm"
                 onclick="console.log('Group button clicked directly'); if(window.openCreateGroupModal) window.openCreateGroupModal(); else console.error('openCreateGroupModal not found');"
               >
                 <i class="fas fa-users text-sm"></i>
@@ -47,7 +47,7 @@
             <input
               type="text"
               id="searchChats"
-              placeholder="Search chats..."
+              placeholder="Tìm kiếm cuộc trò chuyện..."
               class="w-full pl-10 pr-4 py-2 bg-gray-100 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm"
             />
             <i
@@ -73,7 +73,7 @@
             <div class="relative">
               <img
                 th:src="${session.user?.avatarUrl} ?: 'https://via.placeholder.com/40'"
-                alt="Your Avatar"
+                alt="Ảnh đại diện"
                 class="w-10 h-10 rounded-full border-2 border-green-500"
               />
               <div
@@ -86,11 +86,13 @@
               <div class="flex items-center space-x-2">
                 <h4
                   class="text-sm font-semibold text-gray-900 truncate"
-                  th:text="${session.user?.username} ?: 'User'"
+                  th:text="${session.user?.username} ?: 'Người dùng'"
                 >
-                  User
+                  Người dùng
                 </h4>
-                <span class="text-xs text-green-600 font-medium">Online</span>
+                <span class="text-xs text-green-600 font-medium"
+                  >Trực tuyến</span
+                >
               </div>
               <p
                 class="text-xs text-gray-500 truncate"
@@ -105,7 +107,7 @@
               <!-- Settings -->
               <button
                 class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors"
-                title="Settings"
+                title="Cài đặt"
                 onclick="toggleUserMenu()"
               >
                 <i class="fas fa-cog text-sm"></i>
@@ -114,7 +116,7 @@
               <!-- Logout -->
               <button
                 class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                title="Logout"
+                title="Đăng xuất"
                 onclick="logout()"
               >
                 <i class="fas fa-sign-out-alt text-sm"></i>
@@ -191,7 +193,7 @@
             <button
               type="button"
               class="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-              title="Attach"
+              title="Đính kèm"
             >
               <i class="fas fa-paperclip"></i>
             </button>
@@ -199,13 +201,13 @@
               <input
                 id="messageInput"
                 type="text"
-                placeholder="Type a message... (Use @Todo for tasks)"
+                placeholder="Nhập tin nhắn... (Dùng @Todo để tạo công việc)"
                 class="w-full px-4 py-3 bg-gray-100 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:bg-white"
               />
               <button
                 type="button"
                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                title="Emoji"
+                title="Biểu tượng cảm xúc"
               >
                 <i class="fas fa-smile"></i>
               </button>
@@ -224,32 +226,28 @@
         <!-- Todo Header -->
         <div class="p-4 border-b border-gray-200 bg-gray-50">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-gray-900">Tasks</h2>
-            <button
-              id="newTaskBtn"
-              class="w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center justify-center"
-              title="New Task"
-            >
-              <i class="fas fa-plus text-sm"></i>
-            </button>
+            <h2 class="text-xl font-bold text-gray-900">Công Việc</h2>
           </div>
 
           <!-- Task Filter -->
           <div class="flex space-x-1 bg-gray-200 rounded-lg p-1">
             <button
+              id="filterAllBtn"
               class="flex-1 py-2 px-3 text-sm font-medium text-white bg-blue-500 rounded-md transition-colors"
             >
-              All
+              Tất Cả
             </button>
             <button
-              class="flex-1 py-2 px-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              id="filterPendingBtn"
+              class="flex-1 py-2 px-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded-md"
             >
-              Pending
+              Đang Chờ
             </button>
             <button
-              class="flex-1 py-2 px-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              id="filterDoneBtn"
+              class="flex-1 py-2 px-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded-md"
             >
-              Done
+              Hoàn Thành
             </button>
           </div>
         </div>
@@ -258,12 +256,19 @@
         <div class="p-4 border-b border-gray-200">
           <div class="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div class="text-2xl font-bold text-blue-600">8</div>
-              <div class="text-xs text-gray-500">Pending</div>
+              <div id="pendingCount" class="text-2xl font-bold text-blue-600">
+                0
+              </div>
+              <div class="text-xs text-gray-500">Đang Chờ</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-green-600">12</div>
-              <div class="text-xs text-gray-500">Completed</div>
+              <div
+                id="completedCount"
+                class="text-2xl font-bold text-green-600"
+              >
+                0
+              </div>
+              <div class="text-xs text-gray-500">Đã Hoàn Thành</div>
             </div>
           </div>
         </div>
@@ -271,131 +276,15 @@
         <!-- Todo List -->
         <div class="flex-1 overflow-y-auto">
           <div id="todoList" class="p-4 space-y-3">
-            <!-- Sample Todo Items -->
-            <div
-              class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow"
-            >
-              <div class="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-medium text-gray-900">
-                    Review design cho trang login
-                  </h4>
-                  <p class="text-xs text-gray-500 mt-1">
-                    From: Team Alpha • Due: 5:00 PM
-                  </p>
-                  <div class="flex items-center mt-2 space-x-2">
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
-                    >
-                      High
-                    </span>
-                    <span class="text-xs text-gray-400">2h left</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow"
-            >
-              <div class="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-medium text-gray-900">
-                    Update API documentation
-                  </h4>
-                  <p class="text-xs text-gray-500 mt-1">
-                    From: Project Beta • Due: Tomorrow
-                  </p>
-                  <div class="flex items-center mt-2 space-x-2">
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-                    >
-                      Medium
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow opacity-60"
-            >
-              <div class="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  checked
-                  class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-medium text-gray-900 line-through">
-                    Setup development environment
-                  </h4>
-                  <p class="text-xs text-gray-500 mt-1">
-                    From: John Doe • Completed: 1:30 PM
-                  </p>
-                  <div class="flex items-center mt-2 space-x-2">
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                    >
-                      Completed
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="todo-item bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow"
-            >
-              <div class="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  class="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-medium text-gray-900">
-                    Prepare presentation slides
-                  </h4>
-                  <p class="text-xs text-gray-500 mt-1">
-                    Personal • Due: Friday
-                  </p>
-                  <div class="flex items-center mt-2 space-x-2">
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                    >
-                      Low
-                    </span>
-                  </div>
-                </div>
-              </div>
+            <!-- Tasks will be dynamically loaded from AI @Todo messages -->
+            <div class="text-center text-gray-500 py-8" id="todoListEmpty">
+              <i class="fas fa-tasks text-3xl text-gray-300 mb-3"></i>
+              <p class="text-sm">Chưa có công việc nào</p>
+              <p class="text-xs text-gray-400 mt-1">
+                Gửi tin nhắn với @Todo để tạo công việc mới
+              </p>
             </div>
           </div>
-        </div>
-
-        <!-- Quick Add Task -->
-        <div class="p-4 border-t border-gray-200 bg-gray-50">
-          <form id="quickTaskForm" class="space-y-2">
-            <input
-              type="text"
-              id="quickTaskInput"
-              placeholder="Quick add task..."
-              class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-            />
-            <button
-              type="submit"
-              class="w-full py-2 px-4 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Add Task
-            </button>
-          </form>
         </div>
       </div>
     </div>
@@ -599,6 +488,46 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion Note Modal -->
+    <div
+      id="completeTaskModal"
+      class="fixed inset-0 bg-black bg-opacity-40 hidden z-50 items-center justify-center"
+    >
+      <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">
+          Hoàn thành công việc
+        </h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Bạn có chắc chắn mình đã xong công việc này? Vui lòng ghi chú kết quả
+          đạt được.
+        </p>
+        <textarea
+          id="completionNoteInput"
+          rows="4"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          placeholder="Nhập ghi chú kết quả..."
+          required
+        ></textarea>
+        <div id="completionNoteError" class="text-red-500 text-xs mt-2 hidden">
+          Vui lòng nhập ghi chú kết quả.
+        </div>
+        <div class="flex justify-end space-x-3 mt-5">
+          <button
+            id="cancelCompleteTaskBtn"
+            class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300"
+          >
+            Hủy
+          </button>
+          <button
+            id="confirmCompleteTaskBtn"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          >
+            Xác nhận
+          </button>
         </div>
       </div>
     </div>
